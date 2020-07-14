@@ -37,12 +37,17 @@
         </div>
       </li>
     </ul>
-    <div class="tar">
-        <router-link to="/index/prefer">优选餐厅</router-link>
-        <router-link to="/index/excellent">便利超市</router-link>
-        <router-link to="/index/fresh">果蔬生鲜</router-link>
-        <router-link to="/index/teaching">教辅材料</router-link>
-
+    <van-tabs type="card" v-model="activeName">
+      <van-tab name="1" title="优选餐厅">优选餐厅</van-tab>
+      <van-tab name="2" title="便利超市">便利超市</van-tab>
+      <van-tab name="3" title="果蔬生鲜">果蔬生鲜</van-tab>
+      <van-tab name="4" title="教辅材料">教辅材料</van-tab>
+    </van-tabs>
+    <!-- <div class="tar">
+      <router-link to="prefer">优选餐厅</router-link>
+      <router-link to="excellent">便利超市</router-link>
+      <router-link to="fresh">果蔬生鲜</router-link>
+      <router-link to="teaching">教辅材料</router-link>
     </div>
     <div class="search">
       <div v-show="showFilterBlock">
@@ -55,7 +60,7 @@
         ></van-search>
       </div>
     </div>
-      <router-view></router-view>
+    <router-view></router-view> -->
   </div>
 </template>
 
@@ -63,6 +68,7 @@
 export default {
   data() {
     return {
+      activeName:'1',
       swiperImg: [
         "https://test.rongdaufun.com/attachment/images/4/2020/06/p4RrTPD6XBGKqKmL9L98OlsV3wtOPHS51Mz.png",
         "https://test.rongdaufun.com/attachment/images/4/2020/02/m9c4haCCPt4tTUTOA4umUd0Jt9o0pn.jpg"
