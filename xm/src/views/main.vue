@@ -1,8 +1,8 @@
 <template>
   <div>
     <router-view></router-view>
-    <van-tabbar v-model="active">
-      <van-tabbar-item icon="home-o" to="/main/home">首页</van-tabbar-item>
+    <van-tabbar v-model="active" >
+      <van-tabbar-item icon="home-o" to="/main/home" >首页</van-tabbar-item>
       <van-tabbar-item icon="search" to="/main/order">订单</van-tabbar-item>
       <van-tabbar-item icon="friends-o" to="/main/mine">我的</van-tabbar-item>
     </van-tabbar>

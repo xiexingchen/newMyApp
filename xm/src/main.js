@@ -5,6 +5,8 @@ import store from './store'
 import "./style/rest.css"
 import Vant from 'vant';
 import 'vant/lib/index.css';
+import Api from './Api/api.js';
+Vue.prototype.$axios = Api;
 Vue.use(Vant);
 Vue.config.productionTip = false
 new Vue({

@@ -27,9 +27,8 @@
         <span>专</span>潍坊学院专属
       </div>
     </div>
-
     <ul class="recommend">
-      <li v-for="(item,index) in recommendDate " :key="index">
+      <li v-for="(item,index) in recommendDate " :key="index" >
         <img :src="item.imgUrl" alt />
         <div>
           <h3>{{item.title}}</h3>
@@ -38,29 +37,56 @@
       </li>
     </ul>
     <van-tabs type="card" v-model="activeName">
-      <van-tab name="1" title="优选餐厅">优选餐厅</van-tab>
+      <van-tab name="1" title="优选餐厅">
+        <div class="search">
+          <div v-show="showFilterBlock">
+            <van-search
+              class="block-padding"
+              v-model="showFilterValue"
+              readonly
+              placeholder="点击选择餐厅"
+              @click="ShowSelectBlock"
+            ></van-search>
+          </div>
+        </div>
+        <ul class="store">
+          <li v-for="(item,index) in storeList" :key="index" @click="clickhander">
+            <img :src="item.logo" alt />
+            <div class="content">
+              <h3>{{item.title}}</h3>
+              <div class="score">
+                <van-rate v-model="value" size="10" />
+                <span class="span1">评分：5.0</span>
+                <span class="span2">已售：{{item.num}}</span>
+              </div>
+              <div class="Distribution">起送价：￥0.00 配送费：{{item.delivery_price}}￥</div>
+              <div class="recommendDishes">
+                <span>推荐菜品：</span>
+                {{item.good}}
+              </div>
+            </div>
+          </li>
+        </ul>
+      </van-tab>
       <van-tab name="2" title="便利超市">便利超市</van-tab>
       <van-tab name="3" title="果蔬生鲜">果蔬生鲜</van-tab>
       <van-tab name="4" title="教辅材料">教辅材料</van-tab>
     </van-tabs>
-    <!-- <div class="tar">
-      <router-link to="prefer">优选餐厅</router-link>
-      <router-link to="excellent">便利超市</router-link>
-      <router-link to="fresh">果蔬生鲜</router-link>
-      <router-link to="teaching">教辅材料</router-link>
-    </div>
-    <div class="search">
-      <div v-show="showFilterBlock">
-        <van-search
-          class="block-padding"
-          v-model="showFilterValue"
-          readonly
-          placeholder="点击选择餐厅"
-          @click="ShowSelectBlock"
-        ></van-search>
-      </div>
-    </div>
-    <router-view></router-view> -->
+
+    <van-popup v-model="filter.show" position="bottom">
+      <van-search
+        v-model="filter.keyword"
+        placeholder="请输入搜索关键词"
+        @input="searchValue"
+        shape="round"
+      ></van-search>
+      <van-picker
+        show-toolbar
+        :columns="filter.resData"
+        @cancel="filter.show = false"
+        @confirm="filterRes"
+      ></van-picker>
+    </van-popup>
   </div>
 </template>
 
@@ -68,7 +94,7 @@
 export default {
   data() {
     return {
-      activeName:'1',
+      activeName: "1",
       swiperImg: [
         "https://test.rongdaufun.com/attachment/images/4/2020/06/p4RrTPD6XBGKqKmL9L98OlsV3wtOPHS51Mz.png",
         "https://test.rongdaufun.com/attachment/images/4/2020/02/m9c4haCCPt4tTUTOA4umUd0Jt9o0pn.jpg"
@@ -94,7 +120,80 @@ export default {
         }
       ],
       showFilterBlock: true,
-      showFilterValue: ""
+      showFilterValue: "",
+      value: 3,
+      filter: {
+        show: false,
+        keyword: "",
+        resData: [{ id: 0, text: "不限" },{ id: 1, text: "第一餐厅" },{ id: 2, text: "第二餐厅" }]
+      },
+      storeList: [
+        {
+          delivery_price: "0.01",
+          displayorder: "9",
+          good: "测试商品",
+          id: "1",
+          logo:
+            "https://test.rongdaufun.com/attachment/images/4/2020/04/bHroadHPpzk4rLBBsCPEGXWWxGQ8jeHMXQ9.png",
+          notice: "欢迎同学线上下单1",
+          num: "1026",
+          restaurant_id: "2",
+          restaurant_status: "1",
+          title: "一号窗口"
+        },
+        {
+          delivery_price: "0.00",
+          displayorder: "1",
+          good: "炸刀鱼+豆角肉+糖醋肉+小白菜+米饭1份",
+          id: "2",
+          logo:
+            "https://test.rongdaufun.com/attachment/images/4/2020/04/LCb4MF4HvsVc1RBaGRTAOnMul1xucW0AkYs.jpg",
+          notice: "11111",
+          num: "25",
+          restaurant_id: "2",
+          restaurant_status: "1",
+          title: "二号窗口"
+        },
+        {
+          delivery_price: "0.00",
+          displayorder: "0",
+          good: "排骨炖土豆+炸刀鱼+圆葱炒木耳+干煸甘蓝+米饭1份",
+          id: "6",
+          logo:
+            "https://test.rongdaufun.com/attachment/images/4/2020/04/3V2T4UuntbSQhmvG0QJj2QfnkRqgsrzufOZ.jpg",
+          notice: "",
+          num: "4",
+          restaurant_id: "1",
+          restaurant_status: "1",
+          title: "老潼关肉夹馍"
+        },
+        {
+          delivery_price: "0.00",
+          displayorder: "0",
+          good: "排骨炖土豆+炸刀鱼+圆葱炒木耳+干煸甘蓝+米饭1份",
+          id: "6",
+          logo:
+            "https://test.rongdaufun.com/attachment/images/4/2020/04/3V2T4UuntbSQhmvG0QJj2QfnkRqgsrzufOZ.jpg",
+          notice: "",
+          num: "4",
+          restaurant_id: "1",
+          restaurant_status: "1",
+          title: "老潼关肉夹馍"
+        },
+        {
+          delivery_price: "0.00",
+          displayorder: "0",
+          good: "排骨炖土豆+炸刀鱼+圆葱炒木耳+干煸甘蓝+米饭1份",
+          id: "6",
+          logo:
+            "https://test.rongdaufun.com/attachment/images/4/2020/04/3V2T4UuntbSQhmvG0QJj2QfnkRqgsrzufOZ.jpg",
+          notice: "",
+          num: "4",
+          restaurant_id: "1",
+          restaurant_status: "1",
+          title: "老潼关肉夹馍"
+        }
+      ]
     };
   },
   methods: {
@@ -104,7 +203,20 @@ export default {
     onClickRight() {
       Toast("按钮");
     },
-    ShowSelectBlock() {}
+    ShowSelectBlock() {
+      this.filter.show=true;
+    },
+    searchValue(){
+
+    },
+    filterRes(){
+
+    },
+    clickhander(){
+      console.log(this)
+      this.$router.push("/storedetial")
+      
+    }
   }
 };
 </script>
@@ -181,6 +293,53 @@ export default {
       p {
         font-size: @fs-s;
         color: #e15b49;
+      }
+    }
+  }
+  .store {
+    margin-bottom: 1.5rem;
+    li {
+      display: flex;
+      line-height: 1;
+      padding: 2% 4%;
+
+      img {
+        .w(86);
+        height: 2.13rem;
+        border-radius: 0.266rem;
+      }
+      .content {
+        .w(250);
+        padding-left: 5%;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+
+        h3 {
+          font-size: @fs-m;
+          color: #474747;
+        }
+        .score {
+          font-size: @fs-xs;
+          color: #4a4a4a;
+          margin: 3% 0 2% 0;
+        }
+        .Distribution {
+          font-size: @fs-xs;
+          color: B6B6B6;
+          margin-bottom: 5%;
+        }
+        .recommendDishes {
+          font-size: @fs-xs;
+          color: #de7f7f;
+          line-height: 1;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          span {
+            color: #6a6a6a;
+          }
+        }
       }
     }
   }
