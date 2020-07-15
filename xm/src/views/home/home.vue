@@ -28,7 +28,7 @@
       </div>
     </div>
     <ul class="recommend">
-      <li v-for="(item,index) in recommendDate " :key="index" >
+      <li v-for="(item,index) in recommendDate " :key="index">
         <img :src="item.imgUrl" alt />
         <div>
           <h3>{{item.title}}</h3>
@@ -36,7 +36,7 @@
         </div>
       </li>
     </ul>
-    <van-tabs type="card" v-model="activeName">
+    <van-tabs type="line" v-model="activeName">
       <van-tab name="1" title="优选餐厅">
         <div class="search">
           <div v-show="showFilterBlock">
@@ -50,7 +50,7 @@
           </div>
         </div>
         <ul class="store">
-          <li v-for="(item,index) in storeList" :key="index" @click="clickhander">
+          <li v-for="(item,index) in storeList" :key="index" @click="clickhander(item)">
             <img :src="item.logo" alt />
             <div class="content">
               <h3>{{item.title}}</h3>
@@ -68,7 +68,7 @@
           </li>
         </ul>
       </van-tab>
-      <van-tab name="2" title="便利超市">便利超市</van-tab>
+      <van-tab name="2" title="便利超市" title-style="28px"></van-tab>
       <van-tab name="3" title="果蔬生鲜">果蔬生鲜</van-tab>
       <van-tab name="4" title="教辅材料">教辅材料</van-tab>
     </van-tabs>
@@ -125,7 +125,11 @@ export default {
       filter: {
         show: false,
         keyword: "",
-        resData: [{ id: 0, text: "不限" },{ id: 1, text: "第一餐厅" },{ id: 2, text: "第二餐厅" }]
+        resData: [
+          { id: 0, text: "不限" },
+          { id: 1, text: "第一餐厅" },
+          { id: 2, text: "第二餐厅" }
+        ]
       },
       storeList: [
         {
@@ -158,7 +162,7 @@ export default {
           delivery_price: "0.00",
           displayorder: "0",
           good: "排骨炖土豆+炸刀鱼+圆葱炒木耳+干煸甘蓝+米饭1份",
-          id: "6",
+          id: "3",
           logo:
             "https://test.rongdaufun.com/attachment/images/4/2020/04/3V2T4UuntbSQhmvG0QJj2QfnkRqgsrzufOZ.jpg",
           notice: "",
@@ -171,7 +175,7 @@ export default {
           delivery_price: "0.00",
           displayorder: "0",
           good: "排骨炖土豆+炸刀鱼+圆葱炒木耳+干煸甘蓝+米饭1份",
-          id: "6",
+          id: "4",
           logo:
             "https://test.rongdaufun.com/attachment/images/4/2020/04/3V2T4UuntbSQhmvG0QJj2QfnkRqgsrzufOZ.jpg",
           notice: "",
@@ -184,7 +188,7 @@ export default {
           delivery_price: "0.00",
           displayorder: "0",
           good: "排骨炖土豆+炸刀鱼+圆葱炒木耳+干煸甘蓝+米饭1份",
-          id: "6",
+          id: "5",
           logo:
             "https://test.rongdaufun.com/attachment/images/4/2020/04/3V2T4UuntbSQhmvG0QJj2QfnkRqgsrzufOZ.jpg",
           notice: "",
@@ -204,18 +208,12 @@ export default {
       Toast("按钮");
     },
     ShowSelectBlock() {
-      this.filter.show=true;
+      this.filter.show = true;
     },
-    searchValue(){
-
-    },
-    filterRes(){
-
-    },
-    clickhander(){
-      console.log(this)
-      this.$router.push("/storedetial")
-      
+    searchValue() {},
+    filterRes() {},
+    clickhander(item) {
+      this.$router.push({name:"storedetial",query:{storeId:item.id,storeImg:item.logo,delivery_price:item.delivery_price,title:item.title}});
     }
   }
 };

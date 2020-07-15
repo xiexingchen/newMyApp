@@ -13,6 +13,7 @@ import Register from './views/register.vue';
 import Home from './views/home/home.vue';
 // const storeDetial = () => import('./views/home/storedetial');
 import storeDetial from "./views/home/storedetial";
+//import Commodity from "./views/home/commodity";
 // 订单类
 import Order from './views/order/order.vue';
 import orderType from './views/order/index.vue';
@@ -81,6 +82,14 @@ export default new Router({
       path:"/storedetial",
       name:"storedetial",
       component:storeDetial,
+      //redirect:"storedetial/commodity",
+      // children:[
+      //   {
+      //     path: "commodity",
+      //     name: "commodity",
+      //     component: Commodity,
+      //   }
+      // ]
     },
     {
       path: '/mine',
