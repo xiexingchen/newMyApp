@@ -24,43 +24,52 @@
         </div>
       </div>
     </div>
-    <van-tabs class="store-body" v-model="active">
-      <van-tab title="商品">
-        <div class="Exhibition">
-          <ul class="index">
-            <li
-              v-for="(item,index) in list"
-              :key="index"
-              :class="index==sel?'active':''"
-              @click="clickHander(index)"
-            >{{item.title}}</li>
-          </ul>
+    <div class="header1">
+      <van-tabs class="store-body" v-model="active">
+        <van-tab title="商品">
+          <div class="Exhibition">
+            <ul class="index">
+              <li
+                v-for="(item,index) in list"
+                :key="index"
+                :class="index==sel?'active':''"
+                @click="clickHander(index)"
+              >{{item.title}}</li>
+            </ul>
 
-          <ul class="list" @scroll="scrollHandler">
-            <li class="list-item" v-for="(item1,index1) in list" :key="index1">
-              <h2>{{item1.title}}</h2>
-              <div class="img-text" v-for="(item2,index2) in item1.goods" :key="index2">
-                <div class="imge">
-                  <img :src="item2.thumb" alt />
-                </div>
-                <div class="list-text">
-                  <h3>{{item2.title}}</h3>
-                  <p>剩余:{{item2.total==-1? 999:item2.total-item2.today_sell}}</p>
-                  <div class="add">
-                    <span class="span1">￥{{item2.price}}</span>
-                    <div>
-                      <span>-</span>
-                      <span>+</span>
+            <ul class="list" @scroll="scrollHandler">
+              <li class="list-item" v-for="(item1,index1) in list" :key="index1">
+                <h2>{{item1.title}}</h2>
+                <div class="img-text" v-for="(item2,index2) in item1.goods" :key="index2">
+                  <div class="imge">
+                    <img :src="item2.thumb" alt />
+                  </div>
+                  <div class="list-text">
+                    <h3>{{item2.title}}</h3>
+                    <p>剩余:{{item2.total==-1? 999:item2.total-item2.today_sell}}</p>
+                    <div class="add">
+                      <span class="span1">￥{{item2.price}}</span>
+                      <div class="box1">
+                        <span class="span2" @click="subtraction(index1,index2)">-</span>
+                        <span>{{item2.number}}</span>
+                        <span class="span2" @click="addNum(index1,index2)">+</span>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </li>
-          </ul>
-        </div>
-      </van-tab>
-      <van-tab title="商家">商家</van-tab>
-    </van-tabs>
+              </li>
+            </ul>
+          </div>
+
+          <van-goods-action class="flied">
+            <van-goods-action-icon icon="cart-o" text="购物车" :badge="bages" />
+            <van-goods-action-button type="danger" text="立即下单" />
+          </van-goods-action>
+        </van-tab>
+        <van-tab title="商家">商家</van-tab>
+      </van-tabs>
+    </div>
+
     <!-- <router-view></router-view> -->
   </div>
 </template>
@@ -75,6 +84,7 @@ export default {
       storeTitle: "",
       delivery_price: "",
       sel: 0,
+      bages: 0,
       list: [
         {
           displayorder: "245",
@@ -384,7 +394,7 @@ export default {
             }
           ]
         }
-      ],
+      ]
     };
   },
   methods: {
@@ -504,27 +514,51 @@ export default {
         }
         return pre;
       }, 0);
-      let scrollTopAn = this.scrollTopAnFun()
+      let scrollTopAn = this.scrollTopAnFun();
       scrollTopAn({
-            el: document.getElementsByClassName("list")[0], // 滚动元素
-            to: document.getElementsByClassName("list")[0].scrollTop,  // 开始位置
-            form: listIndexNumTop,  // 结束位置
-            time: 1e3 * .5, // 所需时间
-      })
+        el: document.getElementsByClassName("list")[0], // 滚动元素
+        to: document.getElementsByClassName("list")[0].scrollTop, // 开始位置
+        form: listIndexNumTop, // 结束位置
+        time: 1e3 * 0.5 // 所需时间
+      });
     },
-    scrollHandler(e){
-      let listScrollTop = document.getElementsByClassName("list")[0].scrollTop
+    scrollHandler(e) {
+      let listScrollTop = document.getElementsByClassName("list")[0].scrollTop;
       let listItemHeightArr = [
         ...document.getElementsByClassName("list-item")
-      ].map(v=>v.clientHeight)
-      let listItemInparentHeightArr=[];
-      listItemHeightArr.reduce((pre,curr,i)=>{
-        pre+=curr;
-        listItemInparentHeightArr.push(pre)
-        return pre
-      },0)
-      let index = listItemInparentHeightArr.findIndex(v=>v>listScrollTop)
-      this.sel=index>0?(index-1):0
+      ].map(v => v.clientHeight);
+      let listItemInparentHeightArr = [];
+      listItemHeightArr.reduce((pre, curr, i) => {
+        pre += curr;
+        listItemInparentHeightArr.push(pre);
+        return pre;
+      }, 0);
+      let index = listItemInparentHeightArr.findIndex(v => v > listScrollTop);
+      this.sel = index > 0 ? index - 1 : 0;
+    },
+    addNum(index1, index2) {
+      this.list[index1].goods[index2].number++;
+
+      if (!numArr) {
+        
+        var numArr = [];
+        for (let i=0;i<list.length;i++){
+              
+        }
+        numArr.push(this.list[index1].goods[index2].number);
+        // this.bages=numArr.reduce(function(prev, cur) {
+        //   return prev + cur;
+        // }, 0);
+      } else {
+        numArr.push(this.list[index1].goods[index2].number);
+      }
+      console.log(this.list[index1].goods[index2].number,numArr)
+    },
+    subtraction(index1, index2) {
+      this.list[index1].goods[index2].number == 0
+        ? 0
+        : this.list[index1].goods[index2].number--;
+      //console.log(11111,this.bages)
     }
   },
   //   beforeRouteEnter(to, from, next) {
@@ -546,51 +580,64 @@ export default {
     this.storeId = storeId;
     this.storeImg = storeImg;
     this.storeTitle = title;
-    this.delivery_price = delivery_price;   
+    this.delivery_price = delivery_price;
   },
+  mounted() {}
 };
 </script>
 
 <style lang="less" scoped>
 @import "../../style/index.less";
+.storedetial {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  .header {
+    .store {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.4rem;
 
-
-.header {
-  .store {
-    display: flex;
-    justify-content: space-between;
-    padding: 0.4rem;
-
-    .text {
-      h2 {
-        font-size: @fs-l;
-        margin-bottom: 0.1rem;
+      .text {
+        h2 {
+          font-size: @fs-l;
+          margin-bottom: 0.1rem;
+        }
+        .distribution {
+          font-size: @fs-xs;
+          color: #4a4a4a;
+          margin-bottom: 0.2rem;
+        }
+        .Notice {
+          font-size: @fs-xs;
+          color: #a7a0a0;
+        }
       }
-      .distribution {
-        font-size: @fs-xs;
-        color: #4a4a4a;
-        margin-bottom: 0.2rem;
-      }
-      .Notice {
-        font-size: @fs-xs;
-        color: #a7a0a0;
+      .picter {
+        .w(75);
+        height: 1.87rem;
+        img {
+          width: 100%;
+          height: 100%;
+        }
       }
     }
-    .picter {
-      .w(75);
-      height: 1.87rem;
-      img {
-        width: 100%;
-        height: 100%;
-      }
+  }
+  .header1 {
+    flex: 1;
+    .store-body {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
     }
   }
 }
 
 .Exhibition {
+  margin-top: 12px;
   line-height: 1;
   display: flex;
-  height: 12.72rem;
+  height: 10.72rem;
 
   .index {
     .active {
@@ -610,12 +657,17 @@ export default {
     width: 75%;
     overflow: scroll;
     li {
+      // padding:5px 0;
       h2 {
         font-size: @fs-xs;
         color: #9a9a9a;
+        margin-bottom: 8px;
       }
       .img-text {
         display: flex;
+        margin: 0 0 10px 0;
+
+        align-content: center;
         .imge {
           .w(75);
           height: 1.73rem;
@@ -625,13 +677,40 @@ export default {
           }
         }
         .list-text {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
           font-size: @fs-s;
           margin-left: 0.32rem;
+          justify-content: space-between;
           .add {
             display: flex;
-            // justify-content: space-around;
+            justify-content: space-around;
+            align-items: center;
+            .box1 {
+              flex: 1;
+              display: flex;
+              justify-content: flex-end;
+              // padding-right: 20px;
+              align-items: center;
+              span {
+                width: 20px;
+                height: 20px;
+                text-align: center;
+                line-height: 20px;
+                margin-right: 20px;
+              }
+              .span2 {
+                // padding: 4px 10px;
+                border-radius: 50%;
+
+                background: green;
+              }
+            }
             .span1 {
               font-size: 10px;
+              margin-right: 10px;
+              line-height: 12px;
             }
           }
         }
