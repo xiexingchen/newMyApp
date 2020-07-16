@@ -24,16 +24,20 @@
         </div>
       </div>
     </div>
-    <van-tabs v-model="active">
+    <van-tabs class="store-body" v-model="active">
       <van-tab title="商品">
-        商品
         <div class="Exhibition">
           <ul class="index">
-            <li v-for="(item,index) in list" :key="index">{{item.title}}</li>
+            <li
+              v-for="(item,index) in list"
+              :key="index"
+              :class="index==sel?'active':''"
+              @click="clickHander(index)"
+            >{{item.title}}</li>
           </ul>
 
-          <ul class="list">
-            <li v-for="(item1,index1) in list" :key="index1">
+          <ul class="list" @scroll="scrollHandler">
+            <li class="list-item" v-for="(item1,index1) in list" :key="index1">
               <h2>{{item1.title}}</h2>
               <div class="img-text" v-for="(item2,index2) in item1.goods" :key="index2">
                 <div class="imge">
@@ -70,6 +74,7 @@ export default {
       storeImg: "",
       storeTitle: "",
       delivery_price: "",
+      sel: 0,
       list: [
         {
           displayorder: "245",
@@ -379,15 +384,147 @@ export default {
             }
           ]
         }
-      ]
+      ],
     };
   },
   methods: {
+    scrollTopAnFun() {
+      var running = false,
+        gapNum; // 时间切割份数变量
+
+      return function selfFun(params) {
+        var { el, to, form, time } = params;
+        // ---------变量区------------
+        const VDIRECTIONE = to < form ? "up" : "bottom",
+          GAPVAL = to > form ? to - form : to == form ? 0 : form - to, // 相差值
+          TIMEGAP = 10, // 流畅度
+          GAPNAM = GAPVAL / TIMEGAP; //(time * TIMEGAP) / gapVal // 时间切割份数
+
+        var nextScrollTopVal = 0; // 下一个滚动值
+
+        // ----------纯函数区-------------
+        /**
+         * 获取下一个滚动值
+         */
+        let getnextScrollTop = ({ val, nbak, n, elTop }) => {
+          return VDIRECTIONE == "up"
+            ? elTop + (nbak - n) * val
+            : elTop - (nbak - n) * val;
+        };
+
+        // ----------函数区---------------
+        // 动画结束又执行新的任务
+        function NewEvent() {
+          console.log("scroll正在使用");
+          // 暂停当前任务
+          gapNum = 0;
+          // 执行新任务
+          window.setTimeout(() => {
+            let p = Object(params, {
+              to: el.scrollTop
+            });
+            // 取消限制
+            running = false;
+            selfFun(p);
+          }, TIMEGAP + 1);
+        }
+        // 滚动动画结束
+        let ScrollDefer = () => {
+          running = false;
+          gapNum = false;
+
+          // 因为精确度问题， 需要手动修复
+          if (form == 0) {
+            el.scrollTop = 0;
+          }
+        };
+        // scroll动画
+        let SetScroll = () => {
+          // 执行次数
+          gapNum--;
+          if (gapNum <= 0) {
+            ScrollDefer();
+            return;
+          }
+
+          // 逻辑处理
+          let cors = () => {
+            if (gapNum === false) {
+              return;
+            }
+
+            // 获取下一个top
+            nextScrollTopVal = getnextScrollTop({
+              val: TIMEGAP,
+              nbak: GAPNAM,
+              n: gapNum,
+              elTop: to,
+              VDIRECTIONE
+            });
+
+            // 防止闪屏
+            nextScrollTopVal && (el.scrollTop = nextScrollTopVal);
+
+            SetScroll();
+          };
+          // 执行下一个
+          window.setTimeout(cors, TIMEGAP);
+        };
+
+        // ------------ main -------------
+        function main() {
+          // 动画结束又执行新的任务
+          if (running) {
+            NewEvent();
+            return;
+          }
+
+          running = true;
+          gapNum = GAPNAM;
+
+          // 设置scroll （递归函数）
+          SetScroll();
+        }
+        main();
+      };
+    },
     onClickLeft() {
       Toast("返回");
     },
     onClickRight() {
       Toast("按钮");
+    },
+    clickHander(index) {
+      this.sel = index;
+      let listIndexNumTop = [
+        ...document.getElementsByClassName("list-item")
+      ].reduce((pre, curr, i) => {
+        if (i < index) {
+          pre += curr.clientHeight;
+        }
+        return pre;
+      }, 0);
+      let scrollTopAn = this.scrollTopAnFun()
+      scrollTopAn({
+            el: document.getElementsByClassName("list")[0], // 滚动元素
+            to: document.getElementsByClassName("list")[0].scrollTop,  // 开始位置
+            form: listIndexNumTop,  // 结束位置
+            time: 1e3 * .5, // 所需时间
+      })
+    },
+    scrollHandler(e){
+      let listScrollTop = document.getElementsByClassName("list")[0].scrollTop
+      let listItemHeightArr = [
+        ...document.getElementsByClassName("list-item")
+      ].map(v=>v.clientHeight)
+      let listItemInparentHeightArr=[];
+      listItemHeightArr.reduce((pre,curr,i)=>{
+        pre+=curr;
+        listItemInparentHeightArr.push(pre)
+        return pre
+      },0)
+      let index = listItemInparentHeightArr.findIndex(v=>v>listScrollTop)
+      this.sel=index>0?(index-1):0
     }
   },
   //   beforeRouteEnter(to, from, next) {
@@ -409,14 +546,15 @@ export default {
     this.storeId = storeId;
     this.storeImg = storeImg;
     this.storeTitle = title;
-    this.delivery_price = delivery_price;
-    console.log(this.$route);
-  }
+    this.delivery_price = delivery_price;   
+  },
 };
 </script>
 
 <style lang="less" scoped>
 @import "../../style/index.less";
+
+
 .header {
   .store {
     display: flex;
@@ -448,27 +586,36 @@ export default {
     }
   }
 }
+
 .Exhibition {
   line-height: 1;
   display: flex;
+  height: 12.72rem;
+
   .index {
+    .active {
+      border-left: 3px solid red;
+      background-color: #fff;
+    }
     font-size: @fs-s;
     color: #6a6a6a;
     width: 25%;
-    li{
-         padding:.32rem .14rem .373rem .28rem;
+    overflow: scroll;
+    li {
+      padding: 0.32rem 0.14rem 0.373rem 0.28rem;
+      background-color: #f9f9f9;
     }
   }
   .list {
     width: 75%;
+    overflow: scroll;
     li {
-         
       h2 {
         font-size: @fs-xs;
         color: #9a9a9a;
       }
       .img-text {
-           display: flex;
+        display: flex;
         .imge {
           .w(75);
           height: 1.73rem;
@@ -479,13 +626,13 @@ export default {
         }
         .list-text {
           font-size: @fs-s;
-          margin-left:0.32rem;
-          .add{
-               display: flex;
-               // justify-content: space-around;
-               .span1{
-                    font-size: 10px;
-               }
+          margin-left: 0.32rem;
+          .add {
+            display: flex;
+            // justify-content: space-around;
+            .span1 {
+              font-size: 10px;
+            }
           }
         }
       }
