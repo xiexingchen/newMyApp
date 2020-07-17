@@ -60,11 +60,39 @@
               </li>
             </ul>
           </div>
-
           <van-goods-action class="flied">
-            <van-goods-action-icon icon="cart-o" text="购物车" :badge="bages" />
+            <van-goods-action-icon
+              icon="cart-o"
+              text="购物车"
+              :badge="bages==0?'':bages"
+              @click="clickPopup"
+            />
             <van-goods-action-button type="danger" text="立即下单" />
           </van-goods-action>
+          <div class="Popup">
+            <van-popup v-model="show" position="bottom" :style="{ height: '30%'}">
+              <div class="shoppingCart">
+                <div class="selected">
+                  <p>已选商品<span>(饭盒费￥)</span></p>
+                  <p>清空购物车</p>
+                </div>
+                <ul>
+                  <li>
+                    <img src="" alt="">
+                    <div>
+                      <span></span>
+                      <span></span>
+                    </div>
+                    <div>
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </van-popup>
+          </div>
         </van-tab>
         <van-tab title="商家">商家</van-tab>
       </van-tabs>
@@ -85,6 +113,7 @@ export default {
       delivery_price: "",
       sel: 0,
       bages: 0,
+      totalPrice:0,
       list: [
         {
           displayorder: "245",
@@ -394,7 +423,8 @@ export default {
             }
           ]
         }
-      ]
+      ],
+      show: false
     };
   },
   methods: {
@@ -538,27 +568,44 @@ export default {
     },
     addNum(index1, index2) {
       this.list[index1].goods[index2].number++;
-
-      if (!numArr) {
-        
-        var numArr = [];
-        for (let i=0;i<list.length;i++){
-              
+      let sum = 0;
+      let money=0;
+      for (let i = 0; i < this.list.length; i++) {
+        for (let j = 0; j < this.list[i].goods.length; j++) {
+          sum += this.list[i].goods[j].number;
+         //console.log(this.list[0].goods[0].number)
+          money+=this.list[i].goods[j].price*this.list[i].goods[j].number;
         }
-        numArr.push(this.list[index1].goods[index2].number);
-        // this.bages=numArr.reduce(function(prev, cur) {
-        //   return prev + cur;
-        // }, 0);
-      } else {
-        numArr.push(this.list[index1].goods[index2].number);
+        //price
       }
-      console.log(this.list[index1].goods[index2].number,numArr)
+       console.log(money)
+      this.bages = sum;
+      
+      //console.log(index1,index2,money);
+
+
     },
     subtraction(index1, index2) {
+      // this.list[index1].goods[index2].number == 0
+      //   ? 0
+      //   : this.list[index1].goods[index2].number--;
+      if (this.bages == 0) {
+        return false;
+      } else {
+        if (this.list[index1].goods[index2].number == 0) {
+          console.log(this.list[index1].goods[index2].number, "aaaaa");
+          return false;
+        } else {
+          this.bages--;
+          console.log(this.bages);
+        }
+      }
       this.list[index1].goods[index2].number == 0
         ? 0
         : this.list[index1].goods[index2].number--;
-      //console.log(11111,this.bages)
+    },
+    clickPopup() {
+      this.show = true;
     }
   },
   //   beforeRouteEnter(to, from, next) {
@@ -631,6 +678,15 @@ export default {
       flex: 1;
     }
   }
+}
+.flied {
+  position: fixed;
+  bottom: 0;
+  z-index: 11111;
+}
+.bingbing {
+  width: 4.8rem;
+  background-color: #313131;
 }
 
 .Exhibition {
@@ -715,6 +771,17 @@ export default {
           }
         }
       }
+    }
+  }
+}
+
+.Popup{
+  .shoppingCart{
+    .selected{
+      display: flex;
+      font-size:@fs-xs ;
+      justify-content: space-between;
+      padding:.5rem;
     }
   }
 }
